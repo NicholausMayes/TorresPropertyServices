@@ -17,7 +17,7 @@ function figmaAssetResolver() {
 }
 
 export default defineConfig({
-  base: '/TorresPropertyServices/',
+  base: process.env.GITHUB_ACTIONS ? '/TorresPropertyServices/' : '/',
   plugins: [
     figmaAssetResolver(),
     react(),
