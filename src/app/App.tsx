@@ -91,6 +91,25 @@ export default function App() {
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [phoneError, setPhoneError] = useState("");
+
+  const formatPhone = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 10);
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhone(e.target.value);
+    setFormData({ ...formData, phone: formatted });
+    const digits = formatted.replace(/\D/g, "");
+    if (digits.length > 0 && digits.length < 10) {
+      setPhoneError("Please enter a complete 10-digit phone number.");
+    } else {
+      setPhoneError("");
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -106,6 +125,11 @@ export default function App() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const digits = formData.phone.replace(/\D/g, "");
+    if (formData.phone && digits.length < 10) {
+      setPhoneError("Please enter a complete 10-digit phone number.");
+      return;
+    }
     const data = new FormData(e.target as HTMLFormElement);
     await fetch("/", {
       method: "POST",
@@ -529,11 +553,14 @@ export default function App() {
                     <input
                       type="tel"
                       name="phone"
-                      placeholder="(555) 000-0000"
+                      placeholder="555-000-0000"
                       value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="bg-input-background border border-border rounded px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/40 transition"
+                      onChange={handlePhoneChange}
+                      className={`bg-input-background border rounded px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/40 transition ${phoneError ? "border-red-500" : "border-border"}`}
                     />
+                    {phoneError && (
+                      <p className="text-red-500 text-xs mt-1">{phoneError}</p>
+                    )}
                   </div>
                 </div>
 
