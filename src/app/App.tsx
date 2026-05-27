@@ -104,8 +104,14 @@ export default function App() {
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const data = new FormData(e.target as HTMLFormElement);
+    await fetch("/", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(data as any).toString(),
+    });
     setSubmitted(true);
   };
 
@@ -492,7 +498,15 @@ export default function App() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <form
+                onSubmit={handleSubmit}
+                className="flex flex-col gap-5"
+                name="contact"
+                method="POST"
+                data-netlify="true"
+              >
+                <input type="hidden" name="form-name" value="contact" />
+
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
@@ -501,6 +515,7 @@ export default function App() {
                     <input
                       required
                       type="text"
+                      name="name"
                       placeholder="John Doe"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -513,6 +528,7 @@ export default function App() {
                     </label>
                     <input
                       type="tel"
+                      name="phone"
                       placeholder="(555) 000-0000"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -528,6 +544,7 @@ export default function App() {
                   <input
                     required
                     type="email"
+                    name="email"
                     placeholder="you@example.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -540,6 +557,7 @@ export default function App() {
                     Service Needed
                   </label>
                   <select
+                    name="service"
                     value={formData.service}
                     onChange={(e) => setFormData({ ...formData, service: e.target.value })}
                     className="bg-input-background border border-border rounded px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/40 transition appearance-none"
@@ -566,6 +584,7 @@ export default function App() {
                   <textarea
                     required
                     rows={4}
+                    name="message"
                     placeholder="Describe your project or what you need help with…"
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
